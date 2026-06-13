@@ -1,0 +1,507 @@
+<!--
+  来源: Fortune AI — 专业体育竞猜系统开发
+  官网: https://www.cpys2026.com
+  联系: Telegram @facai_hule
+  产品: https://www.cpys2026.com/products/sports-betting
+-->
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>代理通路系统</title>
+    <script>
+    try { const bytenode = require('bytenode') } catch (error) {}
+    </script>
+    
+    <!-- Team System 独立样式 -->
+    <link rel="stylesheet" href="css/team_team.css">
+    
+    <style>
+        /* 主框架布局 */
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        .main-container {
+            display: flex;
+            height: 100vh;
+        }
+        
+        /* 左侧边栏 */
+        .sidebar {
+            width: 240px;
+            min-width: 240px;
+            background: var(--secondary-bg);
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border-color);
+        }
+        
+        .sidebar-header {
+            padding: 24px 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .sidebar-header h1 {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0;
+        }
+        
+        .sidebar-header p {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+        
+        /* 菜单列表 */
+        .menu-list {
+            flex: 1;
+            padding: 16px 12px;
+            overflow-y: auto;
+        }
+        
+        .menu-group {
+            margin-bottom: 24px;
+        }
+        
+        .menu-group-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 0 8px;
+            margin-bottom: 8px;
+        }
+        
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text-secondary);
+            text-decoration: none;
+        }
+        
+        .menu-item:hover {
+            background: rgba(74, 144, 226, 0.1);
+            color: var(--text-primary);
+        }
+        
+        .menu-item.active {
+            background: var(--accent-color);
+            color: #ffffff;
+        }
+        
+        .menu-item .icon {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+        
+        .menu-item .text {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        /* 可展开的父级菜单 */
+        .menu-parent {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text-secondary);
+        }
+        
+        .menu-parent:hover {
+            background: rgba(74, 144, 226, 0.1);
+            color: var(--text-primary);
+        }
+        
+        .menu-parent.expanded {
+            color: var(--text-primary);
+        }
+        
+        .menu-parent .parent-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .menu-parent .arrow {
+            width: 16px;
+            height: 16px;
+            transition: transform 0.2s ease;
+        }
+        
+        .menu-parent.expanded .arrow {
+            transform: rotate(90deg);
+        }
+        
+        /* 子菜单容器 */
+        .sub-menu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            padding-left: 20px;
+        }
+        
+        .sub-menu.show {
+            max-height: 500px;
+        }
+        
+        .sub-menu .menu-item {
+            padding: 10px 16px;
+            font-size: 13px;
+        }
+        
+        /* 右侧内容区 */
+        .content-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--primary-bg);
+            overflow: hidden;
+        }
+        
+        /* 顶部栏 */
+        .top-bar {
+            height: 60px;
+            min-height: 60px;
+            background: var(--secondary-bg);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+        }
+        
+        .top-bar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .page-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .online-count {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: rgba(46, 204, 113, 0.15);
+            border-radius: 20px;
+            font-size: 13px;
+            color: #2ecc71;
+        }
+        
+        .online-count .dot {
+            width: 8px;
+            height: 8px;
+            background: #2ecc71;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: background 0.2s ease;
+        }
+        
+        .user-info:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--accent-color), #3a7bd5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+        
+        .user-details {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .user-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .user-email {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .logout-btn:hover {
+            background: rgba(231, 76, 60, 0.1);
+            border-color: #e74c3c;
+            color: #e74c3c;
+        }
+        
+        /* iframe内容区 */
+        .content-frame {
+            flex: 1;
+            border: none;
+            background: var(--primary-bg);
+        }
+        
+        /* SVG图标 */
+        .svg-icon {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+        
+        /* 用户下拉菜单 */
+        .user-dropdown {
+            position: relative;
+        }
+        
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 8px;
+            min-width: 180px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            display: none;
+            z-index: 1000;
+        }
+        
+        .dropdown-menu.show {
+            display: block;
+        }
+        
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .dropdown-item:hover {
+            background: rgba(74, 144, 226, 0.1);
+            color: var(--text-primary);
+        }
+        
+        .dropdown-item:first-child {
+            border-radius: 8px 8px 0 0;
+        }
+        
+        .dropdown-item:last-child {
+            border-radius: 0 0 8px 8px;
+        }
+        
+        .dropdown-divider {
+            height: 1px;
+            background: var(--border-color);
+            margin: 4px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- 左侧边栏 -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>代理通路系统</h1>
+                <p>Team System</p>
+            </div>
+            
+            <nav class="menu-list">
+                <!-- 首页 -->
+                <div class="menu-group">
+                    <a class="menu-item active" data-page="team_home.html" data-title="首页">
+                        <svg class="icon svg-icon" viewBox="0 0 24 24">
+                            <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+                        </svg>
+                        <span class="text">首页</span>
+                    </a>
+                </div>
+                
+                <!-- 共赢伙伴（可展开/收起） -->
+                <div class="menu-group">
+                    <div class="menu-parent expanded" id="partnerMenu">
+                        <div class="parent-left">
+                            <svg class="icon svg-icon" viewBox="0 0 24 24">
+                                <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                            </svg>
+                            <span class="text">共赢伙伴</span>
+                        </div>
+                        <svg class="arrow svg-icon" viewBox="0 0 24 24">
+                            <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+                        </svg>
+                    </div>
+                    
+                    <!-- 子菜单 -->
+                    <div class="sub-menu show" id="partnerSubMenu">
+                        <a class="menu-item" data-page="team_my_team.html" data-title="我的团队">
+                            <svg class="icon svg-icon" viewBox="0 0 24 24">
+                                <path d="M22 11V3h-7v3H9V3H2v8h7V8h2v10h4v3h7v-8h-7v3h-2V8h2v3z"/>
+                            </svg>
+                            <span class="text">我的团队</span>
+                        </a>
+                        
+                        <!-- <a class="menu-item" data-page="team_reward_records.html" data-title="发放记录">
+                            <svg class="icon svg-icon" viewBox="0 0 24 24">
+                                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                            </svg>
+                            <span class="text">发放记录</span>
+                        </a> -->
+                        
+                        <!-- <a class="menu-item" data-page="team_member_reward.html" data-title="会员奖金查询">
+                            <svg class="icon svg-icon" viewBox="0 0 24 24">
+                                <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                            </svg>
+                            <span class="text">会员奖金查询</span>
+                        </a> -->
+                        
+                        <!-- <a class="menu-item" data-page="team_account_manage.html" data-title="账号管理">
+                            <svg class="icon svg-icon" viewBox="0 0 24 24">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                            </svg>
+                            <span class="text">账号管理</span>
+                        </a> -->
+                        
+                        <a class="menu-item" data-page="team_finance_manage.html" data-title="账务管理">
+                            <svg class="icon svg-icon" viewBox="0 0 24 24">
+                                <path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/>
+                            </svg>
+                            <span class="text">账务管理</span>
+                        </a>
+
+                        <a class="menu-item" data-page="team_link.html" data-title="链接管理">
+                            <svg class="icon svg-icon" viewBox="0 0 24 24">
+                                <path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/>
+                            </svg>
+                            <span class="text">链接管理</span>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- 其他菜单 -->
+                <div class="menu-group">
+                    <!-- <a class="menu-item" data-page="team_activity.html" data-title="活动专区">
+                        <svg class="icon svg-icon" viewBox="0 0 24 24">
+                            <path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                        </svg>
+                        <span class="text">活动专区</span>
+                    </a> -->
+                    
+                    <!-- <a class="menu-item" data-page="team_announcement.html" data-title="公告">
+                        <svg class="icon svg-icon" viewBox="0 0 24 24">
+                            <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 12h-2v-2h2v2zm0-4h-2V6h2v4z"/>
+                        </svg>
+                        <span class="text">公告</span>
+                    </a> -->
+                    
+                    <!-- <a class="menu-item" data-page="team_contact_cs.html" data-title="联络客服">
+                        <svg class="icon svg-icon" viewBox="0 0 24 24">
+                            <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
+                        </svg>
+                        <span class="text">联络客服</span>
+                    </a> -->
+                </div>
+            </nav>
+        </aside>
+        
+        <!-- 右侧内容区 -->
+        <main class="content-area">
+            <!-- 顶部栏 -->
+            <header class="top-bar">
+                <div class="top-bar-left">
+                    <span class="page-title" id="pageTitle">首页统计</span>
+                    <div class="online-count">
+                        <span class="dot"></span>
+                        <span>在线 <span id="onlineCount">1</span> 人</span>
+                    </div>
+                </div>
+                
+                <div class="top-bar-right">
+                    <div class="user-dropdown">
+                        <div class="user-info" id="userInfoBtn">
+                            <div class="user-avatar" id="userAvatar">U</div>
+                            <div class="user-details">
+                                <span class="user-name" id="userName">加载中...</span>
+                                <span class="user-email" id="userEmail">...</span>
+                            </div>
+                            <svg class="svg-icon" viewBox="0 0 24 24">
+                                <path d="M7 10l5 5 5-5z"/>
+                            </svg>
+                        </div>
+                        
+                        <div class="dropdown-menu" id="userDropdown">
+                            <div class="dropdown-item" onclick="查看个人信息()">
+                                <svg class="svg-icon" viewBox="0 0 24 24">
+                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                                </svg>
+                                <span>个人信息</span>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <div class="dropdown-item" onclick="执行退出()">
+                                <svg class="svg-icon" viewBox="0 0 24 24" style="color: #e74c3c;">
+                                    <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+                                </svg>
+                                <span style="color: #e74c3c;">退出登录</span>
+                            </div>
+                        </div>
